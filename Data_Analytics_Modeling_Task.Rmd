@@ -1,0 +1,379 @@
+---
+title: "CA_county"
+output: html_document
+date: "2025-01-13"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r read in dataset}
+ev_registration = read.csv("D:/CA_county/CA_EV_registration.csv",header=TRUE)
+ca_countymap = read.csv("D:/CA_county/CA_countymap.csv",header=TRUE)
+#remove unknown geoid
+ev_registration[ev_registration == 'Unknown'] = NA
+ev_registration<-ev_registration[!is.na(ev_registration$County.GEOID), ]
+ca_countymap$GEOID <- sub("^", "0", ca_countymap$GEOID )
+
+
+```
+
+```{r group data by geoid and year}
+
+ev_registration_bygeoid<-split(ev_registration, ev_registration$County.GEOID)
+
+countylist=list()
+
+id=1
+for (geoid in ev_registration_bygeoid){
+  geoid<-split(geoid,geoid$Registration.Valid.Date)
+  geoid_list=list(geoid)
+  names(geoid_list)=ca_countymap$GEOID[id]
+  countylist=append(countylist,geoid_list)
+  id=id+1
+}
+
+```
+
+
+```{r group data by geoid and year(using county names)}
+ev_registration_bygeoid<-split(ev_registration, ev_registration$County.GEOID)
+
+grouplist1=list()
+
+id=1
+for (geoid in ev_registration_bygeoid){
+  geoid<-split(geoid,geoid$Registration.Valid.Date)
+  geoid_list=list(geoid)
+  names(geoid_list)=ca_countymap$NAME[id]
+  grouplist1=append(grouplist1,geoid_list)
+  id=id+1
+}
+```
+
+
+```{r group data by year and geoid}
+
+ev_registration_byyear<-split(ev_registration, ev_registration$Registration.Valid.Date)
+
+grouplist2=list()
+
+years<- unique(ev_registration$Registration.Valid.Date) 
+years<-sort(years)
+id=1
+
+for (yearid in ev_registration_byyear){
+  yearid<-split(yearid,yearid$County.GEOID)
+  yearid_list=list(yearid)
+  names(yearid_list)=years[id]
+  grouplist2=append(grouplist2,yearid_list)
+  id=id+1
+}
+
+```
+
+
+
+```{r add countyname to the original dataset}
+
+key <- data.frame(County.GEOID=ca_countymap$GEOID,County.NAME=ca_countymap$NAME)
+
+ev_registration <-merge(ev_registration,key,by='County.GEOID')
+```
+
+
+```{r group data by year and geoid, using county names}
+
+ev_registration_byyear<-split(ev_registration, ev_registration$Registration.Valid.Date)
+
+grouplist3=list()
+
+years<- unique(ev_registration$Registration.Valid.Date) 
+years<-sort(years)
+
+id=1
+
+for (yearid in ev_registration_byyear){
+  yearid<-split(yearid,yearid$County.NAME)
+  yearid_list=list(yearid)
+  names(yearid_list)=years[id]
+  grouplist3=append(grouplist3,yearid_list)
+  id=id+1
+}
+```
+
+```{r group data only by geoid}
+ev_registration_bygeoid_only<-split(ev_registration, ev_registration$County.NAME)
+```
+
+```{r group data only by year}
+
+ev_registration_byyear_only<-split(ev_registration, ev_registration$Registration.Valid.Date)
+```
+
+```{r total ev registration by year by geoid, taking 2010 for example}
+grouplist4=grouplist3
+
+ev2010=grouplist4[[1]]
+ev2011=grouplist4[[2]]
+ev2012=grouplist4[[3]]
+ev2013=grouplist4[[4]]
+ev2014=grouplist4[[5]]
+ev2015=grouplist4[[6]]
+ev2016=grouplist4[[7]]
+ev2017=grouplist4[[8]]
+ev2018=grouplist4[[9]]
+ev2019=grouplist4[[10]]
+ev2020=grouplist4[[11]]
+
+ev_registration_2010=data.frame(countyname=ca_countymap$NAME,ev_total_num=0)
+ev_registration_2011=data.frame(countyname=ca_countymap$NAME,ev_total_num=0)
+ev_registration_2012=data.frame(countyname=ca_countymap$NAME,ev_total_num=0)
+ev_registration_2013=data.frame(countyname=ca_countymap$NAME,ev_total_num=0)
+ev_registration_2014=data.frame(countyname=ca_countymap$NAME,ev_total_num=0)
+ev_registration_2015=data.frame(countyname=ca_countymap$NAME,ev_total_num=0)
+ev_registration_2016=data.frame(countyname=ca_countymap$NAME,ev_total_num=0)
+ev_registration_2017=data.frame(countyname=ca_countymap$NAME,ev_total_num=0)
+ev_registration_2018=data.frame(countyname=ca_countymap$NAME,ev_total_num=0)
+ev_registration_2019=data.frame(countyname=ca_countymap$NAME,ev_total_num=0)
+ev_registration_2020=data.frame(countyname=ca_countymap$NAME,ev_total_num=0)
+
+name2010=names(ev2010)
+
+for( i in rownames(ev_registration_2010) ){
+  
+  if(ev_registration_2010[i,'countyname'] %in% name2010){
+    ev_registration_2010[i,'ev_total_num']=nrow(ev2010[[ev_registration_2010[i,'countyname']]])
+  }
+}
+
+
+
+```
+
+```{r total ev registration in 2011}
+name2011=names(ev2011)
+
+for( i in rownames(ev_registration_2011) ){
+  
+  if(ev_registration_2011[i,'countyname'] %in% name2011){
+    ev_registration_2011[i,'ev_total_num']=nrow(ev2011[[ev_registration_2011[i,'countyname']]])
+  }
+}
+```
+
+
+```{r total registration in 2012}
+name2012=names(ev2012)
+
+for( i in rownames(ev_registration_2012) ){
+  
+  if(ev_registration_2012[i,'countyname'] %in% name2012){
+    ev_registration_2012[i,'ev_total_num']=nrow(ev2012[[ev_registration_2012[i,'countyname']]])
+  }
+}
+
+```
+
+```{r 2013}
+
+name2013=names(ev2013)
+
+for( i in rownames(ev_registration_2013) ){
+  
+  if(ev_registration_2013[i,'countyname'] %in% name2013){
+    ev_registration_2013[i,'ev_total_num']=nrow(ev2013[[ev_registration_2013[i,'countyname']]])
+  }
+}
+
+
+```
+
+```{r 2014}
+name2014=names(ev2014)
+
+for( i in rownames(ev_registration_2014) ){
+  
+  if(ev_registration_2014[i,'countyname'] %in% name2014){
+    ev_registration_2014[i,'ev_total_num']=nrow(ev2014[[ev_registration_2014[i,'countyname']]])
+  }
+}
+
+```
+
+
+```{r 2015}
+name2015=names(ev2015)
+
+for( i in rownames(ev_registration_2015) ){
+  
+  if(ev_registration_2015[i,'countyname'] %in% name2015){
+    ev_registration_2015[i,'ev_total_num']=nrow(ev2015[[ev_registration_2015[i,'countyname']]])
+  }
+}
+
+```
+
+
+```{r 2016}
+name2016=names(ev2016)
+
+for( i in rownames(ev_registration_2016) ){
+  
+  if(ev_registration_2016[i,'countyname'] %in% name2016){
+    ev_registration_2016[i,'ev_total_num']=nrow(ev2016[[ev_registration_2016[i,'countyname']]])
+  }
+}
+```
+
+```{r 2017}
+name2017=names(ev2017)
+
+for( i in rownames(ev_registration_2017) ){
+  
+  if(ev_registration_2017[i,'countyname'] %in% name2017){
+    ev_registration_2017[i,'ev_total_num']=nrow(ev2017[[ev_registration_2017[i,'countyname']]])
+  }
+}
+```
+
+
+```{r 2018}
+name2018=names(ev2018)
+
+for( i in rownames(ev_registration_2018) ){
+  
+  if(ev_registration_2018[i,'countyname'] %in% name2018){
+    ev_registration_2018[i,'ev_total_num']=nrow(ev2018[[ev_registration_2018[i,'countyname']]])
+  }
+}
+```
+
+
+```{r 2019}
+name2019=names(ev2019)
+
+for( i in rownames(ev_registration_2019) ){
+  
+  if(ev_registration_2019[i,'countyname'] %in% name2019){
+    ev_registration_2019[i,'ev_total_num']=nrow(ev2019[[ev_registration_2019[i,'countyname']]])
+  }
+}
+```
+
+```{r 2020}
+name2020=names(ev2020)
+
+for( i in rownames(ev_registration_2020) ){
+  
+  if(ev_registration_2020[i,'countyname'] %in% name2020){
+    ev_registration_2020[i,'ev_total_num']=nrow(ev2020[[ev_registration_2020[i,'countyname']]])
+  }
+}
+```
+
+
+```{r}
+write.csv(ev_registration_2010, "D:\\CA_county\\evregistration2010.csv")
+write.csv(ev_registration_2011, "D:\\CA_county\\evregistration2011.csv")
+write.csv(ev_registration_2012, "D:\\CA_county\\evregistration2012.csv")
+write.csv(ev_registration_2013, "D:\\CA_county\\evregistration2013.csv")
+write.csv(ev_registration_2014, "D:\\CA_county\\evregistration2014.csv")
+write.csv(ev_registration_2015, "D:\\CA_county\\evregistration2015.csv")
+write.csv(ev_registration_2016, "D:\\CA_county\\evregistration2016.csv")
+write.csv(ev_registration_2017, "D:\\CA_county\\evregistration2017.csv")
+write.csv(ev_registration_2018, "D:\\CA_county\\evregistration2018.csv")
+write.csv(ev_registration_2019, "D:\\CA_county\\evregistration2019.csv")
+write.csv(ev_registration_2020, "D:\\CA_county\\evregistration2020.csv")
+
+```
+
+```{r panel data}
+ca_demographic_panel= read.csv("D:/CA_county/CA_county_demographic_panel.csv",header=TRUE)
+
+```
+
+```{r spatial regression}
+library(spmodel)
+ca_demographic_panel= read.csv("D:/CA_county/CA_county_demographic_panel.csv",header=TRUE)
+
+spmod <- splm(ev_total_num ~ total_num_hh +hh_size+ median_age+
++ median_hh_income+employment+higher_education_percentage
++median_housing_rent,
+data = ca_demographic_panel,
+spcov_type = "exponential", 
+xcoord = INTPTLAT, ycoord = INTPTLON)
+
+summary(spmod)
+
+
+```
+
+
+```{r time series}
+ca_EV_chargers = read.csv("D:/CA_county/CA_EV_chargers_2020.csv",header=TRUE)
+
+tsca=ts(ca_EV_chargers,start=c(2020,2),end=c(2021,4),frequency=4)
+
+tsca1=tsca[,c(1:10)]
+tsca2=tsca[,c(11:20)]
+
+plot(tsca[,c(1:10)], main='EV charger number County 1-10')
+
+
+```
+
+
+```{r}
+decompose(tsca1, type='additive')
+
+```
+
+```{r}
+ca_weight = read.csv("D:/CA_county/CA_weight_matrix.csv",header=TRUE)
+ca_matrix=as.matrix(ca_weight)
+```
+
+
+```{r}
+ca_cumulative_EV = read.csv("D:/CA_county/CA_cumulative_EV.csv",header=TRUE)
+ts_cumulative=ts(ca_cumulative_EV,start=c(2012),end=c(2020),frequency=1)
+ts_cumulative=ts_cumulative[,c(1:10)]
+plot(ts_cumulative,main='Cumulative EV registration, county 1-10')
+```
+
+```{r}
+library(car)
+EV_alameda<-c(1168,4790,13094,26291,44407,69165,103554,14005,191790)
+year<-c(0,1,2,3,4,5,6,7,8)
+
+data<-data.frame(EV_alameda,year)
+
+logistic_alameda<-nls(EV_alameda~phi1/(1+exp(-(phi2+phi3*year))),start=list(phi1=400000,phi2=-8000,phi3=1000),data=data)
+
+```
+
+
+
+```{r }
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
